@@ -1,4 +1,5 @@
 ﻿using AccessControl.API.Data;
+using AccessControl.Shared.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,29 @@ namespace AccessControl.API.Controllers
             }
 
             return Ok(ticket);
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> PutAsync(MvTicket ticket)
+        {
+            try
+            {
+                _context.Update(ticket);
+                await _context.SaveChangesAsync();
+                return Ok(ticket);
+            }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException!.Message.Contains("duplicate"))
+                {
+                    return BadRequest("Ya existe una categoría con el mismo nombre.");
+                }
+                return BadRequest(ex.InnerException.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
